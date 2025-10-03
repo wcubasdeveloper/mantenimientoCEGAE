@@ -606,9 +606,13 @@ app.get('/health', (req, res) => {
 // INICIALIZACIÓN DEL SERVIDOR
 // ========================================
 
-app.listen(PORT, async () => {
-    console.log(`🚀 Servidor ejecutándose en http://localhost:${PORT}`);
-    //await initDatabase();
+app.listen(PORT, '0.0.0.0', async () => {
+    console.log(`✅ Servidor ejecutándose en http://0.0.0.0:${PORT}`);
+    try {
+        console.log('✅ Base de datos inicializada');
+    } catch (error) {
+        console.error('❌ Error al inicializar base de datos:', error);
+    }
 });
 
 // Manejo de errores no capturados
