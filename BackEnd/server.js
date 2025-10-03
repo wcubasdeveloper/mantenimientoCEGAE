@@ -596,6 +596,12 @@ app.get('/api/estadisticas', authenticateToken, async (req, res) => {
     }
 });
 
+
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'healthy' });
+});
+
+
 // ========================================
 // INICIALIZACIÓN DEL SERVIDOR
 // ========================================
