@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Mantenimiento - Cursos y Ciclos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 400px;
+            animation: slideIn 0.5s ease;
+        }
+
+        .main-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 95%;
+            max-width: 1400px;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        h1, h2 {
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            border-radius: 10px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab {
+            padding: 1rem 2rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            color: #666;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            color: #667eea;
+        }
+
+        .tab.active {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            animation: slideIn 0.3s ease;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #555;
+            font-weight: 500;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 2rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            font-weight: 600;
+            color: #333;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s ease;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .error {
+            color: #dc3545;
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .logout-btn {
+            background: #dc3545;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .search-box input {
+            flex: 1;
+            max-width: 300px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .table-container {
+                overflow-x: scroll;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .header-actions {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Container -->
+    <div id="loginContainer" class="login-container">
+        <h1>🔐 Acceso al Sistema</h1>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Usuario:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="error" id="loginError"></div>
+            <button type="submit" class="btn" style="width: 100%;" id="loginBtn">
+                Iniciar Sesión
+            </button>
+        </form>
+    </div>
+
+    <!-- Main Container -->
+    <div id="mainContainer" class="main-container">
+        <div class="header-actions">
+            <h1>📚 Sistema de Mantenimiento - Cursos y Ciclos</h1>
+            <button class="btn logout-btn" onclick="logout()">Cerrar Sesión</button>
+        </div>
+
+        <!-- Statistics -->
+        <div id="statsContainer" class="stats-container" style="display: none;">
+            <div class="stat-card">
+                <div class="stat-number" id="statCursosActivos">0</div>
+                <div class="stat-label">Cursos Activos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="statCiclosActivos">0</div>
+                <div class="stat-label">Ciclos Activos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="statCiclosProximos">0</div>
+                <div class="stat-label">Próximos a Iniciar</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="statCiclosEnCurso">0</div>
+                <div class="stat-label">En Curso</div>
+            </div>
+        </div>
+
+        <!-- Success/Error Messages -->
+        <div id="successMessage" class="success"></div>
+        <div id="errorMessage" class="alert alert-error" style="display: none;"></div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('cursos')">Cursos Disponibles</button>
+            <button class="tab" onclick="switchTab('ciclos')">Ciclos</button>
+            <button class="tab" onclick="switchTab('estados')">Estados</button>
+        </div>
+
+        <!-- Tab Content: Cursos -->
+        <div id="cursosTab" class="tab-content active">
+            <div class="search-box">
+                <input type="text" id="searchCursos" placeholder="Buscar por nombre o descripción...">
+                <button class="btn" onclick="searchCursos()">Buscar</button>
+                <button class="btn btn-success" onclick="openModal('curso')">➕ Nuevo Curso</button>
+            </div>
+            
+            <div class="table-container">
+                <table id="cursosTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Descripción</th>
+                            <th>Dirigido</th>
+                            <th>Horas/Día</th>
+                            <th>Horarios</th>
+                            <th>Frecuencia</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cursosTableBody">
+                        <tr><td colspan="9" style="text-align: center;">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab Content: Ciclos -->
+        <div id="ciclosTab" class="tab-content">
+            <div class="search-box">
+                <input type="text" id="searchCiclos" placeholder="Buscar ciclo...">
+                <button class="btn" onclick="searchCiclos()">Buscar</button>
+                <button class="btn btn-success" onclick="openModal('ciclo')">➕ Nuevo Ciclo</button>
+            </div>
+            
+            <div class="table-container">
+                <table id="ciclosTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Curso</th>
+                            <th>Nombre Ciclo</th>
+                            <th>Precio Regular</th>
+                            <th>Precio Promoción</th>
+                            <th>Fecha Inicio</th>
+                            <th>Fecha Fin</th>
+                            <th>Duración</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ciclosTableBody">
+                        <tr><td colspan="10" style="text-align: center;">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab Content: Estados -->
+        <div id="estadosTab" class="tab-content">
+            <div class="table-container">
+                <table id="estadosTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="estadosTableBody">
+                        <tr><td colspan="3" style="text-align: center;">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Curso -->
+    <div id="cursoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="cursoModalTitle">Nuevo Curso</h2>
+                <button class="close-btn" onclick="closeModal('curso')">&times;</button>
+            </div>
+            <form id="cursoForm">
+                <input type="hidden" id="cursoId">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cursoNombre">Nombre del Curso: *</label>
+                        <input type="text" id="cursoNombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cursoDirigido">Dirigido a:</label>
+                        <input type="text" id="cursoDirigido">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="cursoDescripcion">Descripción:</label>
+                    <textarea id="cursoDescripcion" rows="3"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cursoHoras">Horas por Día:</label>
+                        <input type="text" id="cursoHoras">
+                    </div>
+                    <div class="form-group">
+                        <label for="cursoHorarios">Horarios:</label>
+                        <input type="text" id="cursoHorarios" placeholder="Ej: 9:00-13:00">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cursoFrecuencia">Frecuencia:</label>
+                        <input type="text" id="cursoFrecuencia" placeholder="Ej: Lunes a Viernes">
+                    </div>
+                    <div class="form-group">
+                        <label for="cursoEstado">Estado:</label>
+                        <select id="cursoEstado">
+                            <!-- Se llenará dinámicamente -->
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('curso')">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for Ciclo -->
+    <div id="cicloModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="cicloModalTitle">Nuevo Ciclo</h2>
+                <button class="close-btn" onclick="closeModal('ciclo')">&times;</button>
+            </div>
+            <form id="cicloForm">
+                <input type="hidden" id="cicloId">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cicloCurso">Curso: *</label>
+                        <select id="cicloCurso" required>
+                            <option value="">Seleccione un curso</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="cicloNombre">Nombre del Ciclo: *</label>
+                        <input type="text" id="cicloNombre" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cicloPrecioRegular">Precio Regular:</label>
+                        <input type="number" id="cicloPrecioRegular" step="0.01" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="cicloPrecioPromocion">Precio Promoción:</label>
+                        <input type="number" id="cicloPrecioPromocion" step="0.01" min="0">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cicloFechaInicio">Fecha de Inicio:</label>
+                        <input type="date" id="cicloFechaInicio">
+                    </div>
+                    <div class="form-group">
+                        <label for="cicloFechaFin">Fecha de Fin:</label>
+                        <input type="date" id="cicloFechaFin">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cicloDuracion">Duración Total:</label>
+                        <input type="text" id="cicloDuracion" placeholder="Ej: 120 horas">
+                    </div>
+                    <div class="form-group">
+                        <label for="cicloEstado">Estado:</label>
+                        <select id="cicloEstado">
+                            <!-- Se llenará dinámicamente -->
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('ciclo')">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Configuración de la API
+        const API_URL = 'http://localhost:3001/api';
+        let authToken = localStorage.getItem('authToken');
+        let estadosData = [];
+        let cursosData = [];
+
+        // Función para hacer peticiones a la API
+        async function apiRequest(endpoint, options = {}) {
+            const defaultOptions = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': authToken ? `Bearer ${authToken}` : ''
+                }
+            };
+
+            const response = await fetch(`${API_URL}${endpoint}`, {
+                ...defaultOptions,
+                ...options,
+                headers: {
+                    ...defaultOptions.headers,
+                    ...options.headers
+                }
+            });
+
+            if (response.status === 401) {
+                logout();
+                throw new Error('Sesión expirada');
+            }
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Error en la petición');
+            }
+
+            return await response.json();
+        }
+
+        // Login
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const loginBtn = document.getElementById('loginBtn');
+            const errorEl = document.getElementById('loginError');
+            
+            try {
+                loginBtn.disabled = true;
+                loginBtn.innerHTML = 'Iniciando sesión<span class="loading"></span>';
+                errorEl.textContent = '';
+                
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                
+                const response = await apiRequest('/auth/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ username, password })
+                });
+                
+                authToken = response.token;
+                localStorage.setItem('authToken', authToken);
+                
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('mainContainer').style.display = 'block';
+                
+                await loadAllData();
+                showSuccess('Sesión iniciada correctamente');
+            } catch (error) {
+                errorEl.textContent = error.message || 'Error al iniciar sesión';
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Iniciar Sesión';
+            }
+        });
+
+        // Logout
+        function logout() {
+            authToken = null;
+            localStorage.removeItem('authToken');
+            document.getElementById('loginContainer').style.display = 'block';
+            document.getElementById('mainContainer').style.display = 'none';
+            document.getElementById('loginForm').reset();
+            document.getElementById('loginError').textContent = '';
+        }
+
+        // Check authentication on load
+        async function checkAuth() {
+            if (authToken) {
+                try {
+                    await apiRequest('/auth/verify');
+                    document.getElementById('loginContainer').style.display = 'none';
+                    document.getElementById('mainContainer').style.display = 'block';
+                    await loadAllData();
+                } catch (error) {
+                    logout();
+                }
+            }
+        }
+
+        // Tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.getElementById(`${tabName}Tab`).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Load all data
+        async function loadAllData() {
+            try {
+                await Promise.all([
+                    loadEstados(),
+                    loadCursos(),
+                    loadCiclos(),
+                    loadEstadisticas()
+                ]);
+            } catch (error) {
+                showError('Error al cargar los datos: ' + error.message);
+            }
+        }
+
+        // Load estadísticas
+        async function loadEstadisticas() {
+            try {
+                const stats = await apiRequest('/estadisticas');
+                document.getElementById('statsContainer').style.display = 'grid';
+                document.getElementById('statCursosActivos').textContent = stats.cursosActivos || 0;
+                document.getElementById('statCiclosActivos').textContent = stats.ciclosActivos || 0;
+                document.getElementById('statCiclosProximos').textContent = stats.ciclosProximos || 0;
+                document.getElementById('statCiclosEnCurso').textContent = stats.ciclosEnCurso || 0;
+            } catch (error) {
+                console.error('Error al cargar estadísticas:', error);
+            }
+        }
+
+        // Load Estados
+        async function loadEstados() {
+            try {
+                estadosData = await apiRequest('/estados');
+                
+                // Llenar tabla
+                const tbody = document.getElementById('estadosTableBody');
+                tbody.innerHTML = '';
+                
+                estadosData.forEach(estado => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${estado.idestado}</td>
+                            <td>${estado.nombre}</td>
+                            <td>${estado.descripcion || '-'}</td>
+                        </tr>
+                    `;
+                });
+                
+                // Llenar selects
+                const selectCurso = document.getElementById('cursoEstado');
+                const selectCiclo = document.getElementById('cicloEstado');
+                
+                const options = estadosData.map(e => 
+                    `<option value="${e.idestado}">${e.nombre}</option>`
+                ).join('');
+                
+                selectCurso.innerHTML = options;
+                selectCiclo.innerHTML = options;
+            } catch (error) {
+                showError('Error al cargar estados: ' + error.message);
+            }
+        }
+
+        // Load Cursos
+        async function loadCursos(searchTerm = '') {
+            try {
+                const params = searchTerm ? `?search=${encodeURIComponent(searchTerm)}` : '';
+                cursosData = await apiRequest(`/cursos${params}`);
+                
+                const tbody = document.getElementById('cursosTableBody');
+                tbody.innerHTML = '';
+                
+                if (cursosData.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="9" style="text-align: center;">No hay cursos disponibles</td></tr>';
+                    return;
+                }
+                
+                cursosData.forEach(curso => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${curso.idcurso}</td>
+                            <td>${curso.nombre_curso}</td>
+                            <td>${curso.descripcion || '-'}</td>
+                            <td>${curso.dirigido || '-'}</td>
+                            <td>${curso.horas_clases_por_dia || '-'}</td>
+                            <td>${curso.horarios || '-'}</td>
+                            <td>${curso.frecuencia || '-'}</td>
+                            <td>${curso.estado_nombre || '-'}</td>
+                            <td>
+                                <div class="actions">
+                                    <button class="btn btn-warning btn-small" onclick="editCurso(${curso.idcurso})">✏️</button>
+                                    <button class="btn btn-danger btn-small" onclick="deleteCurso(${curso.idcurso})">🗑️</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                // Actualizar select de cursos en ciclos
+                loadCursosSelect();
+            } catch (error) {
+                showError('Error al cargar cursos: ' + error.message);
+            }
+        }
+
+        // Load Ciclos
+        async function loadCiclos(searchTerm = '') {
+            try {
+                const params = searchTerm ? `?search=${encodeURIComponent(searchTerm)}` : '';
+                const ciclosData = await apiRequest(`/ciclos${params}`);
+                
+                const tbody = document.getElementById('ciclosTableBody');
+                tbody.innerHTML = '';
+                
+                if (ciclosData.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="10" style="text-align: center;">No hay ciclos disponibles</td></tr>';
+                    return;
+                }
+                
+                ciclosData.forEach(ciclo => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${ciclo.idciclo}</td>
+                            <td>${ciclo.nombre_curso || '-'}</td>
+                            <td>${ciclo.nombreciclo}</td>
+                            <td>S/ ${ciclo.precio_regular || 0}</td>
+                            <td>S/ ${ciclo.precio_promocion || 0}</td>
+                            <td>${formatDate(ciclo.fecha_inicio_clase)}</td>
+                            <td>${formatDate(ciclo.fecha_fin_clase)}</td>
+                            <td>${ciclo.duracion_curso_total || '-'}</td>
+                            <td>${ciclo.estado_nombre || '-'}</td>
+                            <td>
+                                <div class="actions">
+                                    <button class="btn btn-warning btn-small" onclick="editCiclo(${ciclo.idciclo})">✏️</button>
+                                    <button class="btn btn-danger btn-small" onclick="deleteCiclo(${ciclo.idciclo})">🗑️</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch (error) {
+                showError('Error al cargar ciclos: ' + error.message);
+            }
+        }
+
+        // Load Cursos for Select
+        function loadCursosSelect() {
+            const select = document.getElementById('cicloCurso');
+            select.innerHTML = '<option value="">Seleccione un curso</option>';
+            
+            cursosData.forEach(curso => {
+                if (curso.idestado === 1) { // Solo cursos activos
+                    select.innerHTML += `<option value="${curso.idcurso}">${curso.nombre_curso}</option>`;
+                }
+            });
+        }
+
+        // Search functions
+        function searchCursos() {
+            const searchTerm = document.getElementById('searchCursos').value;
+            loadCursos(searchTerm);
+        }
+
+        function searchCiclos() {
+            const searchTerm = document.getElementById('searchCiclos').value;
+            loadCiclos(searchTerm);
+        }
+
+        // Modal functions
+        function openModal(type) {
+            if (type === 'curso') {
+                document.getElementById('cursoModalTitle').textContent = 'Nuevo Curso';
+                document.getElementById('cursoForm').reset();
+                document.getElementById('cursoId').value = '';
+                document.getElementById('cursoModal').classList.add('active');
+            } else if (type === 'ciclo') {
+                document.getElementById('cicloModalTitle').textContent = 'Nuevo Ciclo';
+                document.getElementById('cicloForm').reset();
+                document.getElementById('cicloId').value = '';
+                document.getElementById('cicloModal').classList.add('active');
+            }
+        }
+
+        function closeModal(type) {
+            document.getElementById(`${type}Modal`).classList.remove('active');
+        }
+
+        // Edit functions
+        async function editCurso(id) {
+            try {
+                const curso = await apiRequest(`/cursos/${id}`);
+                
+                document.getElementById('cursoModalTitle').textContent = 'Editar Curso';
+                document.getElementById('cursoId').value = curso.idcurso;
+                document.getElementById('cursoNombre').value = curso.nombre_curso;
+                document.getElementById('cursoDescripcion').value = curso.descripcion || '';
+                document.getElementById('cursoDirigido').value = curso.dirigido || '';
+                document.getElementById('cursoHoras').value = curso.horas_clases_por_dia || '';
+                document.getElementById('cursoHorarios').value = curso.horarios || '';
+                document.getElementById('cursoFrecuencia').value = curso.frecuencia || '';
+                document.getElementById('cursoEstado').value = curso.idestado || 1;
+                document.getElementById('cursoModal').classList.add('active');
+            } catch (error) {
+                showError('Error al cargar curso: ' + error.message);
+            }
+        }
+
+        async function editCiclo(id) {
+            try {
+                const ciclo = await apiRequest(`/ciclos/${id}`);
+                
+                document.getElementById('cicloModalTitle').textContent = 'Editar Ciclo';
+                document.getElementById('cicloId').value = ciclo.idciclo;
+                document.getElementById('cicloCurso').value = ciclo.idcurso;
+                document.getElementById('cicloNombre').value = ciclo.nombreciclo;
+                document.getElementById('cicloPrecioRegular').value = ciclo.precio_regular || '';
+                document.getElementById('cicloPrecioPromocion').value = ciclo.precio_promocion || '';
+                document.getElementById('cicloFechaInicio').value = ciclo.fecha_inicio_clase ? ciclo.fecha_inicio_clase.split('T')[0] : '';
+                document.getElementById('cicloFechaFin').value = ciclo.fecha_fin_clase ? ciclo.fecha_fin_clase.split('T')[0] : '';
+                document.getElementById('cicloDuracion').value = ciclo.duracion_curso_total || '';
+                document.getElementById('cicloEstado').value = ciclo.idestado || 1;
+                document.getElementById('cicloModal').classList.add('active');
+            } catch (error) {
+                showError('Error al cargar ciclo: ' + error.message);
+            }
+        }
+
+        // Delete functions
+        async function deleteCurso(id) {
+            if (confirm('¿Está seguro de eliminar este curso? Esta acción no se puede deshacer.')) {
+                try {
+                    await apiRequest(`/cursos/${id}`, { method: 'DELETE' });
+                    await loadCursos();
+                    await loadEstadisticas();
+                    showSuccess('Curso eliminado correctamente');
+                } catch (error) {
+                    showError('Error al eliminar curso: ' + error.message);
+                }
+            }
+        }
+
+        async function deleteCiclo(id) {
+            if (confirm('¿Está seguro de eliminar este ciclo? Esta acción no se puede deshacer.')) {
+                try {
+                    await apiRequest(`/ciclos/${id}`, { method: 'DELETE' });
+                    await loadCiclos();
+                    await loadEstadisticas();
+                    showSuccess('Ciclo eliminado correctamente');
+                } catch (error) {
+                    showError('Error al eliminar ciclo: ' + error.message);
+                }
+            }
+        }
+
+        // Form submissions
+        document.getElementById('cursoForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const id = document.getElementById('cursoId').value;
+            const cursoData = {
+                nombre_curso: document.getElementById('cursoNombre').value,
+                descripcion: document.getElementById('cursoDescripcion').value,
+                dirigido: document.getElementById('cursoDirigido').value,
+                horas_clases_por_dia: document.getElementById('cursoHoras').value,
+                horarios: document.getElementById('cursoHorarios').value,
+                frecuencia: document.getElementById('cursoFrecuencia').value,
+                idestado: parseInt(document.getElementById('cursoEstado').value)
+            };
+            
+            try {
+                if (id) {
+                    // Update
+                    await apiRequest(`/cursos/${id}`, {
+                        method: 'PUT',
+                        body: JSON.stringify(cursoData)
+                    });
+                    showSuccess('Curso actualizado correctamente');
+                } else {
+                    // Create
+                    await apiRequest('/cursos', {
+                        method: 'POST',
+                        body: JSON.stringify(cursoData)
+                    });
+                    showSuccess('Curso creado correctamente');
+                }
+                
+                await loadCursos();
+                await loadEstadisticas();
+                closeModal('curso');
+            } catch (error) {
+                showError('Error al guardar curso: ' + error.message);
+            }
+        });
+
+        document.getElementById('cicloForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const id = document.getElementById('cicloId').value;
+            const cicloData = {
+                idcurso: parseInt(document.getElementById('cicloCurso').value),
+                nombreciclo: document.getElementById('cicloNombre').value,
+                precio_regular: parseFloat(document.getElementById('cicloPrecioRegular').value) || null,
+                precio_promocion: parseFloat(document.getElementById('cicloPrecioPromocion').value) || null,
+                fecha_inicio_clase: document.getElementById('cicloFechaInicio').value || null,
+                fecha_fin_clase: document.getElementById('cicloFechaFin').value || null,
+                duracion_curso_total: document.getElementById('cicloDuracion').value,
+                idestado: parseInt(document.getElementById('cicloEstado').value)
+            };
+            
+            try {
+                if (id) {
+                    // Update
+                    await apiRequest(`/ciclos/${id}`, {
+                        method: 'PUT',
+                        body: JSON.stringify(cicloData)
+                    });
+                    showSuccess('Ciclo actualizado correctamente');
+                } else {
+                    // Create
+                    await apiRequest('/ciclos', {
+                        method: 'POST',
+                        body: JSON.stringify(cicloData)
+                    });
+                    showSuccess('Ciclo creado correctamente');
+                }
+                
+                await loadCiclos();
+                await loadEstadisticas();
+                closeModal('ciclo');
+            } catch (error) {
+                showError('Error al guardar ciclo: ' + error.message);
+            }
+        });
+
+        // Helper functions
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('es-PE', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+        }
+
+        function showSuccess(message) {
+            const successEl = document.getElementById('successMessage');
+            successEl.textContent = '✅ ' + message;
+            successEl.style.display = 'block';
+            setTimeout(() => {
+                successEl.style.display = 'none';
+            }, 3000);
+        }
+
+        function showError(message) {
+            const errorEl = document.getElementById('errorMessage');
+            errorEl.textContent = '❌ ' + message;
+            errorEl.style.display = 'block';
+            setTimeout(() => {
+                errorEl.style.display = 'none';
+            }, 5000);
+        }
+
+        // Close modals on click outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('active');
+            }
+        }
+
+        // Initialize on load
+        window.onload = function() {
+            checkAuth();
+        };
+
+        // Handle network errors
+        window.addEventListener('unhandledrejection', event => {
+            if (event.reason && event.reason.message) {
+                if (event.reason.message.includes('Failed to fetch')) {
+                    showError('Error de conexión: No se puede conectar con el servidor');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
